@@ -31,28 +31,18 @@ public class VaultLib {
     }
 
     public String encrypt(String data) {
-        int keylen = 128;
-        if (cipherName.equals("AES256"))
-            keylen = 256;
+        if (!cipherName.equals("AES256"))
+            throw new RuntimeException("Only AES256 is supported");
 
         ByteArrayOutputStream output = new ByteArrayOutputStream(data.length() * 4);
         try {
-            AES.encrypt(keylen, vaultPassword.toCharArray(), new ByteArrayInputStream(data.getBytes("utf-8")), output);
+            AES.encrypt(256, vaultPassword.toCharArray(), new ByteArrayInputStream(data.getBytes("utf-8")), output);
         } catch (AES.InvalidKeyLengthException e) {
-            System.out.println("e = " + e);
+            e.printStackTrace();
         } catch (AES.StrongEncryptionNotAvailableException e) {
-            try {
-                setCipherName("AES");
-                AES.encrypt(128, vaultPassword.toCharArray(), new ByteArrayInputStream(data.getBytes("utf-8")), output);
-            } catch (AES.InvalidKeyLengthException e1) {
-                e1.printStackTrace();
-            } catch (AES.StrongEncryptionNotAvailableException e1) {
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("e = " + e);
+            e.printStackTrace();
         }
 
         return formatOutput(DatatypeConverter.printHexBinary(output.toByteArray()));
@@ -89,7 +79,7 @@ public class VaultLib {
 
         ByteArrayOutputStream output = new ByteArrayOutputStream(data.length() / 4);
         try {
-            AES.decrypt(vaultPassword.toCharArray(), new ByteArrayInputStream(DatatypeConverter.parseHexBinary(data)), output);
+            AES.decrypt(256, vaultPassword.toCharArray(), new ByteArrayInputStream(DatatypeConverter.parseHexBinary(data)), output);
         } catch (AES.StrongEncryptionNotAvailableException e) {
             e.printStackTrace();
         } catch (IOException e) {

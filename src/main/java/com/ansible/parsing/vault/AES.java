@@ -141,7 +141,7 @@ public class AES {
         }
 
         // write authentication and AES initialization data
-        output.write(keyLength / 8);
+        // output.write(keyLength / 8);
         output.write(salt);
         output.write(keys.authentication.getEncoded());
         output.write(iv);
@@ -182,12 +182,13 @@ public class AES {
     public static int decrypt(int keyLength, char[] password, InputStream input, OutputStream output)
             throws InvalidPasswordException, InvalidAESStreamException, IOException,
             StrongEncryptionNotAvailableException {
-        int keyLength = input.read() * 8;
+
+        /*        int keyLength = input.read() * 8;
         // Check validity of key length
         if (keyLength != 128 && keyLength != 192 && keyLength != 256) {
             throw new InvalidAESStreamException();
         }
-
+*/
         // read salt, generate keys, and authenticate password
         byte[] salt = new byte[SALT_LENGTH];
         input.read(salt);
@@ -231,6 +232,51 @@ public class AES {
         }
         if (decrypted != null) {
             output.write(decrypted);
+        }
+
+        return keyLength;
+    }
+
+
+    public static int decryptTest(int keyLength, char[] password, byte[] salt, byte[] hmac, InputStream input)
+            throws InvalidPasswordException, InvalidAESStreamException, IOException,
+            StrongEncryptionNotAvailableException {
+
+        Keys keys = keygen(keyLength, password, salt);
+        if (!Arrays.equals(keys.authentication.getEncoded(), hmac)) {
+            //   throw new InvalidPasswordException();
+        }
+
+        // initialize AES decryption
+        Cipher decrypt = null;
+        try {
+            decrypt = Cipher.getInstance(CIPHER_SPEC);
+            decrypt.init(Cipher.DECRYPT_MODE, keys.encryption);
+        } catch (NoSuchAlgorithmException impossible) {
+        } catch (NoSuchPaddingException impossible) {
+        } catch (InvalidKeyException e) { // 192 or 256-bit AES not available
+            throw new StrongEncryptionNotAvailableException(keyLength);
+        }
+
+        // read data from input into buffer, decrypt and write to output
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int numRead;
+        byte[] decrypted;
+        while ((numRead = input.read(buffer)) > 0) {
+            decrypted = decrypt.update(buffer, 0, numRead);
+            if (decrypted != null) {
+                System.out.write(decrypted);
+            }
+        }
+        try { // finish decryption - do final block
+            decrypted = decrypt.doFinal();
+        } catch (IllegalBlockSizeException e) {
+            throw new InvalidAESStreamException(e);
+        } catch (BadPaddingException e) {
+            throw new InvalidAESStreamException(e);
+        }
+        if (decrypted != null) {
+            System.out.write(decrypted);
         }
 
         return keyLength;

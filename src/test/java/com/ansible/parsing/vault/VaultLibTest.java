@@ -3,6 +3,10 @@ package com.ansible.parsing.vault;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -38,7 +42,6 @@ public class VaultLibTest {
         vault = new VaultLib("ansible");
     }
 
-    @Test
     public void test_encrypt_decrypt_aes() {
         String enc_data = "$ANSIBLE_VAULT;1.1;AES\n53616c7465645f5fc107ce1ef4d7b455e038a13b053225776458052f8f8f332d554809d3f150bfa3\nfe3db930508b65e0ff5947e4386b79af8ab094017629590ef6ba486814cf70f8e4ab0ed0c7d2587e\n786a5a15efeb787e1958cbdd480d076c\n";
         String dec_data = vault.decrypt(enc_data);
@@ -76,6 +79,15 @@ public class VaultLibTest {
     }
 
     @Test
+    public void manual_format() throws AES.StrongEncryptionNotAvailableException, AES.InvalidPasswordException, AES.InvalidAESStreamException, IOException {
+        byte[] salt = DatatypeConverter.parseHexBinary("ed3496252ad601cf571ac38eab55544fd9de4fc160e0053e688e1da1fbb98f40");
+        byte[] hmac = DatatypeConverter.parseHexBinary("c329dee4cbc4412294e077aca91d23c471b0cc8473967fe81dbc0c1832db0f88");
+        byte[] data = DatatypeConverter.parseHexBinary("2812bc157abaa53f7a86e22f9ed253dd");
+
+        AES.decryptTest(256, "ansible".toCharArray(), salt, hmac, new ByteArrayInputStream(data));
+    }
+
+    @Test
     public void test_decrypt_sample_txt() {
         String dec_data = vault.decrypt("$ANSIBLE_VAULT;1.1;AES256\n" +
                 "65643334393632353261643630316366353731616333386561623535353434666439646534666331\n" +
@@ -85,4 +97,6 @@ public class VaultLibTest {
                 "6464\n");
         assertEquals("decryption failed", "foobar", dec_data);
     }
+
+
 }
