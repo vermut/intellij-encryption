@@ -1,0 +1,2 @@
+FILE
+  PsiElement(PgpTokenType.PGP_TOKEN)('teststring')
