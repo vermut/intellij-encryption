@@ -135,6 +135,10 @@ public class CypherAES256 implements CypherInterface {
     }
 
     public byte[] encryptAES(byte[] cleartext, byte[] key, byte[] iv) throws IOException {
+        if (!hasValidAESProvider()) {
+            throw new IOException("Missing valid AES256 provider - install unrestricted policy profiles.");
+        }
+
         SecretKeySpec keySpec = new SecretKeySpec(key, CYPHER_KEY_ALGO);
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         try {

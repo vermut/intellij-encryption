@@ -19,8 +19,6 @@ package net.wedjaa.ansible.vault.crypto.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 
 public class Util {
 
@@ -32,8 +30,12 @@ public class Util {
     final protected static String LINE_BREAK = "\n";
     final protected static String CHAR_ENCODING = "UTF-8";
 
-    public static String join(String[] datalines) {
-        return String.join("", Arrays.asList(datalines));
+    public static String join(String[] aArr) {
+        StringBuilder sbStr = new StringBuilder();
+        for (String anAArr : aArr) {
+            sbStr.append(anAArr);
+        }
+        return sbStr.toString();
     }
 
     public static byte[] unhex(String hexed) {

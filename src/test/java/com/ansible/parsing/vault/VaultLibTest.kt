@@ -53,7 +53,7 @@ class VaultLibTest {
 
     @Test
     fun test_decrypt_sample_txt() {
-        val dec_data = VaultHandler.decrypt(File("src/test/data/parser/sample.txt").readText(), PASSWORD)
+        val dec_data = VaultHandler.decrypt(File("src/test/data/parser/sample.yml").readText(), PASSWORD)
         assertEquals("decryption failed", "foobar\n", dec_data)
     }
 }

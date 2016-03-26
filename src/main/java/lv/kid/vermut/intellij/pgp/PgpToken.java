@@ -1,10 +1,10 @@
 package lv.kid.vermut.intellij.pgp;
 
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.ILazyParseableElementType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-public class PgpToken extends IElementType {
+public class PgpToken extends ILazyParseableElementType {
     public static final PgpToken INSTANCE = new PgpToken("PGP_TOKEN");
 
     public PgpToken(@NotNull @NonNls String debugName) {
